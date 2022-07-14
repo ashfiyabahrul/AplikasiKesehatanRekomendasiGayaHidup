@@ -2,60 +2,50 @@ import streamlit as st
 import requests
 # import pandas as pd
 # import numpy as np
-# import tensorflow as tf
-# import joblib
+import tensorflow as tf
+import joblib
 
 
-# @st.cache(suppress_st_warning=True, allow_output_mutation=True)
-# def loadModel():
-# 	model_d = tf.keras.models.load_model('model_diabetes.h5')
-# 	model_h = tf.keras.models.load_model('model_heart.h5')
-# 	model_s = tf.keras.models.load_model('model_stroke.h5')
-# 	return model_d, model_h, model_s
-#
-# @st.cache(suppress_st_warning=True, allow_output_mutation=True)
-# def loadScaler():
-# 	ss_d = joblib.load('ss_d.bin')
-# 	ss_h = joblib.load('ss_h.bin')
-# 	ss_s = joblib.load('ss_s.bin')
-# 	return ss_d, ss_h, ss_s
+@st.cache(suppress_st_warning=True, allow_output_mutation=True)
+def loadModel():
+	model_d = tf.keras.models.load_model('model_diabetes.h5')
+	model_h = tf.keras.models.load_model('model_heart.h5')
+	model_s = tf.keras.models.load_model('model_stroke.h5')
+	return model_d, model_h, model_s
 
-# def normalize_data(data_d, data_h, data_s):
-#     data_d = [data_d]
-#     data_d = ss_d.transform(data_d)
-#     data_h = [data_h]
-#     data_h = ss_h.transform(data_h)
-#     data_s = [data_s]
-#     data_s = ss_s.transform(data_s)
-#     return data_d, data_h, data_s
-#
-# def predict_diabetes(datas):
-#     return 1 if model_d.predict(datas)[0][0] > 0.5 else 0
-#
-# def predict_heart(datas):
-#     return 1 if model_h.predict(datas)[0][0] > 0.5 else 0
-#
-# def predict_stroke(datas):
-#     return 1 if model_s.predict(datas)[0][0] > 0.5 else 0
-#
-# def prediction(request):
-#     if request.method == 'GET':
-#         return "Please Send POST Request"
-#     elif request.method == 'POST':
-#         data = request.get_json()
-#         data_d, data_h, data_s = normalize_data(data['diabetes'], data['heart'], data['stroke'])
-#         return jsonify({
-#             "prediction_diabetes": predict_diabetes(data_d),
-#             "prediction_heart": predict_heart(data_h),
-#             "prediction_stroke": predict_stroke(data_s)
-#         })
+@st.cache(suppress_st_warning=True, allow_output_mutation=True)
+def loadScaler():
+	ss_d = joblib.load('ss_d.bin')
+	ss_h = joblib.load('ss_h.bin')
+	ss_s = joblib.load('ss_s.bin')
+	return ss_d, ss_h, ss_s
 
-def predict_request(apiaddress, datas):
-    resp = requests.post(apiaddress,
-                         json={"diabetes": datas[0],
-                               "heart": datas[1],
-                               "stroke": datas[2]})
-    return resp.json()['prediction_diabetes'], resp.json()['prediction_heart'], resp.json()['prediction_stroke']
+def normalize_data(datas, scalers, model_h):
+    data_diabetes = [datas[0]]
+    data_diabetes = scalers[0].transform(data_diabetes)
+    data_heart = [datas[1]]
+    data_heart = scalers[1].transform(data_heart)
+    datas[2].insert(3, predict_heart(data_heart, model_h))
+    data_stroke = [datas[2]]
+    data_stroke = scalers[2].transform(data_stroke)
+    return data_diabetes, data_heart, data_stroke
+
+def predict_diabetes(datas, model):
+    return 1 if model.predict(datas)[0][0] > 0.5 else 0
+
+def predict_heart(datas, model):
+    return 1 if model.predict(datas)[0][0] > 0.5 else 0
+
+def predict_stroke(datas, model):
+    return 1 if model.predict(datas)[0][0] > 0.5 else 0
+
+
+# def predict_request(apiaddress, datas):
+#     resp = requests.post(apiaddress,
+#                          json={"diabetes": datas[0],
+#                                "heart": datas[1],
+#                                "stroke": datas[2]})
+#     return resp.json()['prediction_diabetes'], resp.json()['prediction_heart'], resp.json()['prediction_stroke']
 
 def rekomendasi(name, prediksi_d, prediksi_h, prediksi_s):
     if prediksi_d == 0 and prediksi_h == 0 and prediksi_s == 0:
@@ -435,6 +425,9 @@ def rekomendasi(name, prediksi_d, prediksi_h, prediksi_s):
             ""
 
 def main():
+    model_d, model_h, model_s = loadModel()
+    ss_d, ss_h, ss_s = loadScaler()
+    scaler = [ss_d, ss_h, ss_s]
     st.title("APLIKASI KESEHATAN REKOMENDASI GAYA HIDUP")
     st.markdown("Aplikasi ini dibuat untuk memberikan rekomendasi gaya hidup sehat berdasarkan riwayat kesehatan pengguna")
     name = st.text_input("Masukkan nama anda :")
@@ -627,7 +620,11 @@ def main():
     butt = st.button('Prediksi')
     if butt:
         if name:
-            prediksi_diabetes, prediksi_heart, prediksi_stroke = predict_request('http://74c4-34-74-227-171.ngrok.io/predict',datapengguna)
+            data_d, data_h, data_s =normalize_data(datapengguna, scaler, model_h)
+            prediksi_diabetes = predict_diabetes(data_d, model_d)
+            prediksi_heart = predict_heart(data_h, model_h)
+            prediksi_stroke = predict_stroke(data_s, model_s)
+            # prediksi_diabetes, prediksi_heart, prediksi_stroke = predict_request('http://466e-34-147-70-188.ngrok.io/predict',datapengguna)
             st.write(prediksi_diabetes," ", prediksi_heart, " ", prediksi_stroke)
             rekomendasi(name,prediksi_diabetes, prediksi_heart, prediksi_stroke)
         else:
