@@ -627,7 +627,7 @@ def main():
     butt = st.button('Prediksi')
     if butt:
         if name:
-            prediksi_diabetes, prediksi_heart, prediksi_stroke = predict_request('http://466e-34-147-70-188.ngrok.io/predict',datapengguna)
+            prediksi_diabetes, prediksi_heart, prediksi_stroke = predict_request('http://74c4-34-74-227-171.ngrok.io/predict',datapengguna)
             st.write(prediksi_diabetes," ", prediksi_heart, " ", prediksi_stroke)
             rekomendasi(name,prediksi_diabetes, prediksi_heart, prediksi_stroke)
         else:
@@ -635,6 +635,4 @@ def main():
             st.stop()
 
 if __name__ == "__main__":
-	main().listen(process.env.PORT || 3000, function(){
-  console.log("Express server listening on port %d in %s mode", this.address().port, app.settings.env);
-});
+	main()
