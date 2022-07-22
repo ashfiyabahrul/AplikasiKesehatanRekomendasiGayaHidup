@@ -605,16 +605,16 @@ def main():
         smoking_status = 2
 
     datapengguna = []
-    "Diabetes"
-    st.write(pregnancies, glucose, bp, skinthickness, insulin, bmi, dpf, age)
+    # "Diabetes"
+    # st.write(pregnancies, glucose, bp, skinthickness, insulin, bmi, dpf, age)
     data_d = [pregnancies, glucose, bp, skinthickness, insulin, bmi, dpf, age]
     datapengguna.append(data_d)
-    "Jantung"
-    st.write(age,sex,cp,trestbps,chol,fbs,restecg,thalach,exang,oldpeak,slope,ca,thal)
+    # "Jantung"
+    # st.write(age,sex,cp,trestbps,chol,fbs,restecg,thalach,exang,oldpeak,slope,ca,thal)
     data_h = [age,sex,cp,trestbps,chol,fbs,restecg,thalach,exang,oldpeak,slope,ca,thal]
     datapengguna.append(data_h)
-    "Stroke"
-    st.write(sex, age, hypertension,evermarried,work_type,residence_type,avg_glucose_level,bmi,smoking_status)
+    # "Stroke"
+    # st.write(sex, age, hypertension,evermarried,work_type,residence_type,avg_glucose_level,bmi,smoking_status)
     data_s = [sex, age, hypertension,evermarried,work_type,residence_type,avg_glucose_level,bmi,smoking_status]
     datapengguna.append(data_s)
 
@@ -626,7 +626,7 @@ def main():
             prediksi_heart = predict_heart(data_h, model_h)
             prediksi_stroke = predict_stroke(data_s, model_s)
             # prediksi_diabetes, prediksi_heart, prediksi_stroke = predict_request('http://466e-34-147-70-188.ngrok.io/predict',datapengguna)
-            st.write(prediksi_diabetes," ", prediksi_heart, " ", prediksi_stroke)
+            # st.write(prediksi_diabetes," ", prediksi_heart, " ", prediksi_stroke)
             rekomendasi(name,prediksi_diabetes, prediksi_heart, prediksi_stroke)
         else:
             st.warning('Tolong masukkan nama anda.')
